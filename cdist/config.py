@@ -32,6 +32,8 @@ import cdist.exec.local
 import cdist.exec.remote
 
 from cdist import core
+from cdist import dependency
+
 
 class Config(object):
     """Cdist main class to hold arbitrary data"""
@@ -118,7 +120,7 @@ class Config(object):
             local = cdist.exec.local.Local(
                 target_host=host,
                 initial_manifest=args.manifest,
-                out_path=args.out_path,
+                base_path=args.out_path,
                 add_conf_dirs=args.conf_dir)
 
             remote = cdist.exec.remote.Remote(
