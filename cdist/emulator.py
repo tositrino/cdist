@@ -68,18 +68,6 @@ class Emulator(object):
 
         self.__init_log()
 
-    def filter(self, record):
-        """Add hostname and object to logs via logging Filter"""
-
-        prefix = self.target_host + ": (emulator)"
-        prefix = '{0}: emulator {1}'.format(
-            self.target_host,
-            core.CdistObject.join_name(self.type_name, self.object_id)
-        )
-        record.msg = prefix + ": " + record.msg
-
-        return True
-
     def run(self):
         """Emulate type commands (i.e. __file and co)"""
 
@@ -92,16 +80,13 @@ class Emulator(object):
 
     def __init_log(self):
         """Setup logging facility"""
-        logformat = '%(levelname)s: %(message)s'
-        logging.basicConfig(format=logformat)
 
         if '__cdist_debug' in self.env:
             logging.root.setLevel(logging.DEBUG)
         else:
             logging.root.setLevel(logging.INFO)
 
-        self.log            = logging.getLogger(__name__)
-        self.log.addFilter(self)
+        self.log  = logging.getLogger(self.target_host)
 
     def commandline(self):
         """Parse command line"""
@@ -120,10 +105,12 @@ class Emulator(object):
             parser.add_argument(argument, dest=parameter, action='append', required=True)
         for parameter in self.cdist_type.optional_parameters:
             argument = "--" + parameter
-            parser.add_argument(argument, dest=parameter, action='store', required=False)
+            parser.add_argument(argument, dest=parameter, action='store', required=False,
+                default=self.cdist_type.parameter_defaults.get(parameter, None))
         for parameter in self.cdist_type.optional_multiple_parameters:
             argument = "--" + parameter
-            parser.add_argument(argument, dest=parameter, action='append', required=False)
+            parser.add_argument(argument, dest=parameter, action='append', required=False,
+                default=self.cdist_type.parameter_defaults.get(parameter, None))
         for parameter in self.cdist_type.boolean_parameters:
             argument = "--" + parameter
             parser.add_argument(argument, dest=parameter, action='store_const', const='')
@@ -201,7 +188,7 @@ class Emulator(object):
                 # Save the sanitised version, not the user supplied one
                 # (__file//bar => __file/bar)
                 # This ensures pattern matching is done against sanitised list
-                self.dpm.before(cdist_object.name, self.cdist_object.name)
+                self.dpm.before(self.cdist_object.name, cdist_object.name)
         if 'after' in self.meta_parameters:
             for value in self.meta_parameters['after']:
                 # Raises an error, if object cannot be created
@@ -222,8 +209,8 @@ class Emulator(object):
                 # Raises an error, if object cannot be created
                 try:
                     cdist_object = self.cdist_object.object_from_name(requirement)
-                except core.cdist_type.NoSuchTypeError:
-                    self.log.error("%s requires object %s with non-existing type at %s"  % (self.cdist_object.name, requirement, self.object_source))
+                except core.cdist_type.NoSuchTypeError as e:
+                    self.log.error("%s requires object %s, but type %s does not exist (definded at %s)"  % (self.cdist_object.name, requirement, e.name, self.object_source))
                     raise
 
 

@@ -112,7 +112,7 @@ class AutoRequireEmulatorTestCase(test.CdistTestCase):
             add_conf_dirs=[conf_dir])
         self.local.create_files_dirs()
         self.manifest = core.Manifest(self.target_host, self.local)
-        self.dpm = dependency.DependencyManager(os.path.join(out_path, 'dependency'))
+        self.dpm = dependency.DependencyManager(os.path.join(base_path, 'dependency'))
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
@@ -207,6 +207,21 @@ class ArgumentsTestCase(test.CdistTestCase):
         object_id = 'some-id'
         value = 'some value'
         argv = [type_name, object_id, '--optional1', value]
+        os.environ.update(self.env)
+        emu = emulator.Emulator(argv)
+        emu.run()
+
+        cdist_type = core.CdistType(self.local.type_path, type_name)
+        cdist_object = core.CdistObject(cdist_type, self.local.object_path, object_id)
+        self.assertTrue('optional1' in cdist_object.parameters)
+        self.assertFalse('optional2' in cdist_object.parameters)
+        self.assertEqual(cdist_object.parameters['optional1'], value)
+
+    def test_argument_defaults(self):
+        type_name = '__argument_defaults'
+        object_id = 'some-id'
+        value = 'value1'
+        argv = [type_name, object_id]
         os.environ.update(self.env)
         emu = emulator.Emulator(argv)
         emu.run()

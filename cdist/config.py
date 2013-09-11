@@ -25,6 +25,7 @@ import os
 import shutil
 import sys
 import time
+import pprint
 
 import cdist
 
@@ -219,14 +220,13 @@ class Config(object):
             for cdist_object in unfinished_objects:
 
                 deps = self.dpm(cdist_object.name)
-                requirement_names = [obj.name for obj in self.list_unfinished_objects(deps['after'])]
-                autorequire_names = [obj.name for obj in self.list_unfinished_objects(deps['auto'])]
+                unresolved_deps = {
+                    'require': [obj.name for obj in self.list_unfinished_objects(deps['after'])],
+                    'auto': [obj.name for obj in self.list_unfinished_objects(deps['auto'])],
+                }
+                info_string.append("{0}: {1}".format(cdist_object.name, pprint.pformat(unresolved_deps)))
 
-                requirements = ", ".join(requirement_names)
-                autorequire  = ", ".join(autorequire_names)
-                info_string.append("%s requires: %s autorequires: %s" % (cdist_object.name, requirements, autorequire))
-
-            raise cdist.UnresolvableRequirementsError("The requirements of the following objects could not be resolved: %s" %
+            raise cdist.UnresolvableRequirementsError("The requirements of the following objects could not be resolved:\n%s" %
                 ("\n".join(info_string)))
 
     def object_from_name(self, object_name):
