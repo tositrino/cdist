@@ -56,7 +56,8 @@ else
 fi
 [ -n "$type" ] || die "Can't determine type for $__object"
 if [ "$type" = "swap" ]; then
-   echo "swapon \"$device\""
+   # make sure this does not fail cause swap is already in use
+   echo "swapoff \"$device\" > /dev/null 2>&1 ; swapon \"$device\""
 else
    if [ -f "$__object/parameter/options" ]; then
       options="$(cat "$__object/parameter/options")"
