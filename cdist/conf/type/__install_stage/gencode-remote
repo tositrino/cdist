@@ -21,9 +21,9 @@
 uri="$(cat "$__object/parameter/uri" 2>/dev/null \
    || echo "$__object_id")"
 target="$(cat "$__object/parameter/target")"
-
+curlopt="$(cat "$__object/parameter/curlopt" 2>/dev/null)"
 
 [ "$__debug" = "yes" ] && curl="curl" || curl="curl -s"
 [ "$__debug" = "yes" ] && tar="tar -xvzp" || tar="tar -xzp"
 
-echo "$curl '$uri' | $tar -C '$target'"
+echo "$curl $curlopt '$uri' | $tar -C '$target'"
