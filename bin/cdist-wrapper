@@ -8,6 +8,7 @@
 
 set -e
 
+ulimit -n 2048
 cdist_repo=/site/opt/cdist/ivc
 cdist_branch="production"
 
