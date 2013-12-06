@@ -20,10 +20,16 @@
 
 uri="$(cat "$__object/parameter/uri" 2>/dev/null \
    || echo "$__object_id")"
+
 target="$(cat "$__object/parameter/target")"
 
+if [ -f "$__object/parameter/insecure" ] ; then
+  curloptions="-k"
+else 
+  curloptions=""
+fi
 
-[ "$__debug" = "yes" ] && curl="curl" || curl="curl -s"
+[ "$__debug" = "yes" ] && curl="curl ${curloptions}" || curl="curl -s ${curloptions}"
 [ "$__debug" = "yes" ] && tar="tar -xvzp" || tar="tar -xzp"
 
 echo "$curl '$uri' | $tar -C '$target'"
