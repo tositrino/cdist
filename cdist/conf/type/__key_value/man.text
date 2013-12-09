@@ -14,13 +14,17 @@ This cdist type allows you to change values in a key value based config
 file.
 
 
+BOOLEANL PARAMETERS
+-------------------
+quoted::
+  quote the value using standard qotes "
+
 REQUIRED PARAMETERS
 -------------------
 file::
    The file to operate on.
 delimiter::
    The delimiter which seperates the key from the value.
-
 
 OPTIONAL PARAMETERS
 -------------------

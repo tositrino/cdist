@@ -27,6 +27,11 @@ state_should=present
 file="$(cat "$__object/parameter/file")"
 delimiter="$(cat "$__object/parameter/delimiter")"
 value="$(cat "$__object/parameter/value")"
+if [ -f "$__object/parameter/quoted" ] ; then
+  quoted=1
+else
+  quoted=0
+fi
 
 state_is="$(cat "$__object/explorer/state")"
 
@@ -42,12 +47,21 @@ case "$state_should" in
         case "$state_is" in
             absent)
                 # add new key and value
-                echo "echo \"${key}${delimiter}${value}\" >> \"$file\""
+                if [ ${quoted} -gt 0 ] ; then
+                   echo "printf \"%s%s\\\"%s\\\"\" \"${key}\" \"${delimiter}\" \"${value}\" >> \"$file\""
+                else
+                   echo "printf \"%s%s%s\" \"${key}\" \"${delimiter}\" \"${value}\" >> \"$file\""
+                fi
             ;;
             wrongvalue)
                 # change exisiting value
-                printf 'sed "s|^%s\(%s\+\).*|%s\\1%s|" "%s" > "%s.cdist-tmp"\n' \
-                    "$key" "$delimiter" "$key" "$value" "$file" "$file"
+                if [ ${quoted} -gt 0 ] ; then
+                   printf 'sed "s|^%s\(%s\+\).*|%s\\1\"%s\"|" "%s" > "%s.cdist-tmp"\n' \
+                       "$key" "$delimiter" "$key" "$value" "$file" "$file"
+                else
+                   printf 'sed "s|^%s\(%s\+\).*|%s\\1%s|" "%s" > "%s.cdist-tmp"\n' \
+                       "$key" "$delimiter" "$key" "$value" "$file" "$file"
+                fi
                 echo "mv \"$file.cdist-tmp\" \"$file\""
             ;;
             *)
