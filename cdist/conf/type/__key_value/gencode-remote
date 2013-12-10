@@ -56,11 +56,11 @@ case "$state_should" in
             wrongvalue)
                 # change exisiting value
                 if [ ${quoted} -gt 0 ] ; then
-                   printf "sed 's|^%s\(%s\+\).*|%s\\1\\\"%s\\\"|' \"%s\" > \"%s.cdist-tmp\"\n" \
-                       "$key" "$delimiter" "$key" "$value" "$file" "$file"
+                   printf "sed 's|^%s\(%s\+\).*$|%s%s\\\"%s\\\"|' \"%s\" > \"%s.cdist-tmp\"\n" \
+                       "$key" "$delimiter" "$key" "$delimiter" "$value" "$file" "$file"
                 else
-                   printf "sed 's|^%s\(%s\+\).*|%s\\1%s|' \"%s\" > \"%s.cdist-tmp\"\n" \
-                       "$key" "$delimiter" "$key" "$value" "$file" "$file"
+                   printf "sed 's|^%s\(%s\+\).*|%s%s%s|' \"%s\" > \"%s.cdist-tmp\"\n" \
+                       "$key" "$delimiter" "$key" "$delimiter" "$value" "$file" "$file"
                 fi
                 echo "mv \"$file.cdist-tmp\" \"$file\""
             ;;
