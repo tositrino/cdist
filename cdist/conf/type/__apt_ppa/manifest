@@ -25,7 +25,7 @@ osv=$(cat "$__global/explorer/os_version" | tr -d '.' )
 rq="__package/python-software-properties"
 __package python-software-properties --state present
 
-if [ ${os} = "ubuntu" ] && [ ${osv} -ge 1404 ] ; then
+if [ ${os} = "ubuntu" ] && [ ${osv} -gt 1304 ] ; then
   __package software-properties-common
   rq="${rq} __package/software-properties-common"
 fi
