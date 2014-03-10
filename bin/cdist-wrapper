@@ -1,0 +1,43 @@
+#!/bin/sh
+# 
+# Wrapper for running cdist.
+# - checks code and config branches
+# - sets up the environment
+# - runs cdist with the given arguments
+#
+
+set -e
+
+ulimit -n 4096
+cdist_repo=/site/opt/cdist/ivc
+cdist_branch="production"
+
+config_repo=~/.cdist
+config_branch="master"
+
+verboseLevel=0
+
+check_branch() {
+   _repo="$1"
+   _branch_should="$2"
+   _branch_is=$(git --git-dir "$_repo/.git" --work-tree "$_repo" rev-parse --abbrev-ref HEAD)
+   [ ${verboseLevel} -gt 0 ] && echo -e "repo: $1\n  current branch is ${_branch_is}\n  required branch is ${_branch_should}"
+   if [ "$_branch_is" != "$_branch_should" ]; then
+      echo "Warning: wrong branch at $_repo!"
+      echo "  expected '$_branch_should', is '$_branch_is'."
+      read -p "Press y/yes to continue anyway, anything else to abort: " yn
+      case $yn in
+         [Yy]*) break;;
+         *) exit 0;;
+      esac
+   fi
+   unset _home _branch_is _branch_should
+}
+
+check_branch "$cdist_repo" "$cdist_branch"
+check_branch "$config_repo" "$config_branch"
+
+module load cdist/ivc
+[ ${verboseLevel} -gt 0 ] && module list
+
+${cdist_repo}/bin/cdist $@

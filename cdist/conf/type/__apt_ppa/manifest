@@ -19,11 +19,18 @@
 #
 
 name="$__object_id"
+os=$(cat "$__global/explorer/os")
+osv=$(cat "$__global/explorer/os_version" | tr -d '.' )
 
-__package software-properties-common
-__package python-software-properties
+rq="__package/python-software-properties"
+__package python-software-properties --state present
 
-require="__package/software-properties-common __package/python-software-properties" \
+if [ ${os} = "ubuntu" ] && [ ${osv} -gt 1304 ] ; then
+  __package software-properties-common
+  rq="${rq} __package/software-properties-common"
+fi
+
+require="${rq}" \
    __file /usr/local/bin/remove-apt-repository \
    --source "$__type/files/remove-apt-repository" \
    --mode 0755
