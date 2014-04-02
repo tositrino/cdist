@@ -37,6 +37,8 @@ insecure::
 ipv6sucks::
    should be named "curl sucks as they cannot handle ipv6 when no ipv6 is present",
    runs curl with -4
+wget::
+   use wget if curl hurts too much
 
 
 EXAMPLES
