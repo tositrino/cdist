@@ -29,4 +29,8 @@ if [ -f "$__object/parameter/insecure" ] ; then
    curl="$curl -k"
 fi
 
+if [ -f "$__object/parameter/ipv6sucks" ] ; then
+   curl="$curl -4"
+fi
+
 echo "$curl '$uri' | $tar -C '$target'"
