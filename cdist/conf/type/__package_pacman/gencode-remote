@@ -49,7 +49,7 @@ fi
 
 case "$state_should" in
    present)
-         echo pacman --needed --noconfirm --noprogressbar -S \"$name\"
+         echo pacman --needed --noconfirm --noprogressbar --force -S \"$name\"
    ;;
    absent)
          echo pacman --noconfirm --noprogressbar -R \"$name\"

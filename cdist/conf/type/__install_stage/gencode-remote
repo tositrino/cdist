@@ -22,11 +22,22 @@ uri="$(cat "$__object/parameter/uri" 2>/dev/null \
    || echo "$__object_id")"
 target="$(cat "$__object/parameter/target")"
 
-[ "$__debug" = "yes" ] && curl="curl" || curl="curl -s"
+[ "$__debug" = "yes" ] && curl="curl" || curl="curl -s --show"
+[ "$__debug" = "yes" ] && wget="wget --quiet -O -" || wget="wget -O -"
 [ "$__debug" = "yes" ] && tar="tar -xvzp" || tar="tar -xzp"
 
 if [ -f "$__object/parameter/insecure" ] ; then
    curl="$curl -k"
+   wget="$wget --no-check-certificate"
 fi
 
-echo "$curl '$uri' | $tar -C '$target'"
+if [ -f "$__object/parameter/ipv6sucks" ] ; then
+   curl="$curl -4"
+   wget="$wget  --prefer-family=IPv4"
+fi
+
+if [ -f "$__object/parameter/wget" ] ; then
+  echo "$wget '$uri' | $tar -C '$target'"
+else
+  echo "$curl '$uri' | $tar -C '$target'"
+fi
