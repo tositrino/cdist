@@ -45,6 +45,11 @@ if grep -q ^DISTRIB_ID=Ubuntu /etc/lsb-release 2>/dev/null; then
    exit 0
 fi
 
+if grep -q ^DISTRIB_ID=Linaro /etc/lsb-release 2>/dev/null; then
+   echo linaro
+   exit 0
+fi
+
 if [ -f /etc/debian_version ]; then
    echo debian
    exit 0

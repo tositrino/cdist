@@ -39,6 +39,9 @@ case "$($__explorer/os)" in
    gentoo)
       cat /etc/gentoo-release
    ;;
+   linaro)
+      lsb_release -sr
+   ;;
    macosx)
       sw_vers -productVersion
    ;;
