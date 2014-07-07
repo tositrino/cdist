@@ -50,7 +50,7 @@ aptget="DEBIAN_FRONTEND=noninteractive apt-get --quiet --yes --no-install-recomm
 
 case "$state_should" in
     present)
-        echo $aptget install \"$name\"
+        echo $aptget install --force-yes \"$name\"
     ;;
     absent)
         echo $aptget remove \"$name\"
