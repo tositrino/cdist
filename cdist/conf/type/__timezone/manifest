@@ -26,7 +26,7 @@ timezone="$__object_id"
 os=$(cat "$__global/explorer/os")
 
 case "$os" in
-    archlinux|debian|ubuntu)
+    archlinux|debian|linaro|ubuntu)
         __package tzdata --state present
         require="__package/tzdata" __link /etc/localtime    \
             --source "/usr/share/zoneinfo/${timezone}"      \
