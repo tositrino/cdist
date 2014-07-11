@@ -36,7 +36,7 @@ case "$state_should" in
             archlinux)
                 echo "systemctl enable \"$name\""
             ;;
-            debian|ubuntu)
+            debian|linaro|ubuntu)
                 echo "update-rc.d \"$name\" defaults >/dev/null"
             ;;
 
@@ -67,7 +67,7 @@ case "$state_should" in
             archlinux)
                 echo "systemctl disable \"$name\""
             ;;
-            debian|ubuntu)
+            debian|linaro|ubuntu)
                 echo update-rc.d -f \"$name\" remove
             ;;
 

@@ -34,7 +34,7 @@ case "$os" in
             || echo absent)
     ;;
 
-    debian|ubuntu|openwrt)
+    debian|linaro|openwrt|ubuntu)
         state="present"
         [ -f "/etc/rc$runlevel.d/S"??"$name" ] || state="absent"
     ;;
