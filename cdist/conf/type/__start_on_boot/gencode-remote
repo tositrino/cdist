@@ -37,11 +37,11 @@ case "$state_should" in
                 echo "systemctl enable \"$name\""
             ;;
             debian)
-                echo update-rc.d -f \"$name\" remove
+                echo update-rc.d -f \"$name\" enable
             ;;
             linaro|ubuntu)
-                echo update-rc.d -f \"$name\" remove
-                echo echo manual > /etc/init/$name.override
+                echo "update-rc.d \"$name\" defaults >/dev/null"
+                echo "rm -f /etc/init/$name.override"
             ;;
             gentoo)
                 echo rc-update add \"$name\" \"$target_runlevel\"
@@ -70,10 +70,13 @@ case "$state_should" in
             archlinux)
                 echo "systemctl disable \"$name\""
             ;;
-            debian|linaro|ubuntu)
+            debian)
                 echo update-rc.d -f \"$name\" remove
             ;;
-
+            linaro|ubuntu)
+                echo update-rc.d -f \"$name\" remove
+                echo "echo manual > /etc/init/$name.override"
+            ;;
             gentoo)
                 echo rc-update del \"$name\"  \"$target_runlevel\"
             ;;
