@@ -20,27 +20,32 @@
 
 user="$(cat "$__object/parameter/user" 2>/dev/null || echo "$__object_id")"
 state_should="$(cat "$__object/parameter/state")"
+warnonerror="$(cat "$__object/parameter/warnonerror")"
 
 mkdir "$__object/files"
 # file has to be sorted for comparison with `comm`
 sort "$__object/parameter/group" > "$__object/files/group.sorted"
 
 case "$state_should" in
-   present)
-      changed_groups="$(comm -13 "$__object/explorer/group" "$__object/files/group.sorted")"
-      action="-a"
-   ;;
-   absent)
-      changed_groups="$(comm -12 "$__object/explorer/group" "$__object/files/group.sorted")"
-      action="-d"
-   ;;
+  present)
+    changed_groups="$(comm -13 "$__object/explorer/group" "$__object/files/group.sorted")"
+    action="-a"
+  ;;
+  absent)
+    changed_groups="$(comm -12 "$__object/explorer/group" "$__object/files/group.sorted")"
+    action="-d"
+  ;;
 esac
 
 if [ -z "$changed_groups" ]; then
-   # Nothing to do, move along
-   exit 0
+  # Nothing to do, move along
+  exit 0
 fi
 
 for group in $changed_groups; do
-   echo "gpasswd $action \"$user\" \"$group\""
+  if [ "${warnonerror}" = "true" ] ; then
+    echo "gpasswd $action \"$user\" \"$group\" || echo \"WARNING: gencode-remote() failed for type ${__type##*/}\n ERROR: gpasswd ${action} ${user} ${group}\""
+  else
+    echo "gpasswd $action \"$user\" \"$group\""
+  fi
 done

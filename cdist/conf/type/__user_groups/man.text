@@ -28,6 +28,9 @@ user::
 state::
    absent or present. Defaults to present.
 
+warnonerror::
+   warn only on error (do not abort cdist if user does not exist)
+   defaults to 1 (ths)
 
 EXAMPLES
 --------
