@@ -1,6 +1,6 @@
 cdist-type__hostname(7)
 =======================
-Steven Armstrong <steven-cdist--@--armstrong.cc>
+THS <ths--@--hanskult.de>
 
 
 NAME
@@ -12,16 +12,20 @@ DESCRIPTION
 -----------
 Set's the hostname on various operating systems.
 
-
-REQUIRED PARAMETERS
--------------------
-None.
+BOOLEAN PARAMETERS
+------------------
+fqdn::
+  Use full qulified domain name (not only the first part of __target_host)
 
 OPTIONAL PARAMETERS
 -------------------
 name::
    The hostname to set. Defaults to the first segment of __target_host 
    (${__target_host%%.*})
+
+REQUIRED PARAMETERS
+-------------------
+None.
 
 
 MESSAGES
@@ -48,5 +52,5 @@ SEE ALSO
 
 COPYING
 -------
-Copyright \(C) 2012 Steven Armstrong. Free use of this software is
+Copyright \(C) 2015 THS. Free use of this software is
 granted under the terms of the GNU General Public License version 3 (GPLv3).
