@@ -24,6 +24,7 @@
 #
 
 type="$__object/parameter/type"
+
 if [ -f "$type" ]; then
    type="$(cat "$type")"
 else
@@ -49,9 +50,16 @@ state="$(cat "$__object/parameter/state")"
 set -- "$@" "$__object_id" "--state" "$state"
 cd "$__object/parameter"
 for property in $(ls .); do
+   [ "$property" = "ignoreerrors" ] && continue
    if [ "$property" != "type" -a "$property" != "state" ]; then
       set -- "$@" "--$property" "$(cat "$property")"
    fi
 done
 
-__package_$type "$@"
+if [ -f "$__object/parameter/ignoreerrors" ] ; then
+   __package_$type "$@" || echo "WARNING: __package_$type "$@" returned error code $?"
+else
+   __package_$type "$@"
+fi
+
+

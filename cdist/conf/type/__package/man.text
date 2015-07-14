@@ -14,9 +14,12 @@ This cdist type allows you to install or uninstall packages on the target.
 It dispatches the actual work to the package system dependant types.
 
 
-REQUIRED PARAMETERS
--------------------
-None
+BOOLEAN PARAMETERS
+------------------
+ignoreerrors::
+    do not exit on package installtion errors - may be handy in case of
+    packages that generate errors in chrooted or unusual environemnts
+    yeah, i mean you, grub-probe
 
 
 OPTIONAL PARAMETERS
@@ -35,6 +38,11 @@ type::
 
 state::
     Either "present" or "absent", defaults to "present"
+
+
+REQUIRED PARAMETERS
+-------------------
+None
 
 
 EXAMPLES
