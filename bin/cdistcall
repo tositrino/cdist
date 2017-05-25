@@ -1,0 +1,71 @@
+#!/bin/bash
+
+hn=""
+mode="help"
+ask="yes"
+errmsg=""
+cdistdir="~.cdist"
+logdir="~/cdist/logfiles"
+
+case $0 in
+  *config)  mode="config"   ;;
+  *install) mode="install"  ;;
+esac
+
+for arg in $@ ; do
+  case ${arg} in
+    --ask)     ask="yes"       ;;
+    --config)  mode="config"  ;;
+    --install) mode="install" ;;
+    --help)    mode="help"    ;;
+    --noask)   ask="no"       ;;
+    --yes)     ask="no"       ;;
+    *) if [ -z "${hn}" ] ; then
+         hn="${arg}"
+       else
+         errmsg="${errmsg}ERROR: hostname already defined as ${hn}\n  -> invalid argument ${arg}\n"
+       fi
+    ;;
+  esac
+done
+
+[ -z "${hn}" ] && [ -z "${errmsg}" ] && errmsg="${errmsg}ERROR: missing hostname\n"
+if [ -n "${errmsg}" ] ; then
+  printf "\n${errmsg}\n"
+  mode="help"
+fi
+if [ ${mode} = "help" ] ; then
+  printf "Usage: $0 [options] <hostname>\n"
+  printf "  available options are :\n"
+  printf "  --ask          - ask for confirmation before doing anything\n"
+  printf "  --confing      - configure host\n"
+  printf "  --help         - show this help\n"
+  printf "  --install      - install host\n"
+  printf "  --noask/--yes  - skip confirmation\n\n"
+  exit 2
+fi
+
+cmd="cdist -v ${mode} ${hn} 2>&1 | tee ${logdir}/${hn}.${mode}.log"
+
+printf "CALL: %s" "${cmd}"
+if [ "${ask}" != "no" ] ; then
+  ret=""
+  while [ -z "${ret}" ] ; do
+    printf "  [yes|no] > "
+    read ret 
+    echo 
+    case "${ret}" in
+      y|yes|Y|YES) ret="yes" ;;
+      n|no|N|NO)   ret="no" ;;
+    esac
+  done
+fi
+if [ "${ret}" != "yes" ] ; then
+  echo ">> ABORTED"
+  exit 0
+else
+  eval ${cmd}
+fi
+
+
+
