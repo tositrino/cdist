@@ -20,4 +20,6 @@
 
 options="$(cat "$__object/parameter/options")"
 
-echo "reboot $options"
+set +e
+echo "reboot $options" || echo "errors can be ignored here"
+
