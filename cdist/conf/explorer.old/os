@@ -1,7 +1,6 @@
 #!/bin/sh
 #
 # 2010-2011 Nico Schottelius (nico-cdist at schottelius.org)
-# Copyright 2017, Philippe Gregoire <pg@pgregoire.xyz>
 #
 # This file is part of cdist.
 #
@@ -40,20 +39,14 @@ if [ -f /etc/cdist-preos ]; then
    exit 0
 fi
 
-if [ -d /gnu/store ]; then
-   echo guixsd
-   exit 0
-fi
-
 ### Debian and derivatives
 if grep -q ^DISTRIB_ID=Ubuntu /etc/lsb-release 2>/dev/null; then
    echo ubuntu
    exit 0
 fi
 
-# devuan ascii has both devuan_version and debian_version, so we need to check devuan_version first!
-if [ -f /etc/devuan_version ]; then
-   echo devuan
+if grep -q ^DISTRIB_ID=Linaro /etc/lsb-release 2>/dev/null; then
+   echo linaro
    exit 0
 fi
 
@@ -61,7 +54,6 @@ if [ -f /etc/debian_version ]; then
    echo debian
    exit 0
 fi
-
 ###
 
 if [ -f /etc/gentoo-release ]; then
@@ -80,11 +72,6 @@ if [ -f /etc/owl-release ]; then
 fi
 
 ### Redhat and derivatives
-if grep -q ^Scientific /etc/redhat-release 2>/dev/null; then
-    echo scientific
-    exit 0
-fi
-
 if grep -q ^CentOS /etc/redhat-release 2>/dev/null; then
     echo centos
     exit 0
@@ -92,11 +79,6 @@ fi
 
 if grep -q ^Fedora /etc/redhat-release 2>/dev/null; then
    echo fedora
-   exit 0
-fi
-
-if grep -q ^Mitel /etc/redhat-release 2>/dev/null; then
-   echo mitel
    exit 0
 fi
 
@@ -141,13 +123,6 @@ case "$uname_s" in
       exit 0
    ;;
 esac
-
-if [ -f /etc/os-release ]; then
-   # already lowercase, according to:
-   # https://www.freedesktop.org/software/systemd/man/os-release.html
-   awk -F= '/^ID=/ {print $2;}' /etc/os-release
-   exit 0
-fi
 
 echo "Unknown OS" >&2
 exit 1

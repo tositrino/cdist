@@ -1,7 +1,6 @@
 #!/bin/sh
 #
-# 2014 Daniel Heule  (hda at sfs.biz)
-# 2014 Thomas Oettli (otho at sfs.biz)
+# 2012 Nico Schottelius (nico-cdist at schottelius.org)
 #
 # This file is part of cdist.
 #
@@ -20,17 +19,8 @@
 #
 #
 
-# FIXME: other system types (not linux ...)
-
-os=$("$__explorer/os")
-case "$os" in
-    "macosx")
-        echo "$(sysctl -n hw.memsize)/1024" | bc
-    ;;
-
-    *)
-    if [ -r /proc/meminfo ]; then
-        grep "MemTotal:" /proc/meminfo | awk '{print $2}'
-    fi
-    ;;
-esac
+set +e
+executable=$(command -v runlevel)
+if [ -x "$executable" ]; then
+   "$executable" | awk '{ print $2 }'
+fi

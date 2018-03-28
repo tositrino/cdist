@@ -23,43 +23,51 @@
 # system.
 #
 
+##printf "DEBUG: %s - start\n" "${__type##*/}"
+
 type="$__object/parameter/type"
 
 if [ -f "$type" ]; then
-   type="$(cat "$type")"
+  type="$(cat "$type")"
 else
-   # By default determine package manager based on operating system
-   os="$(cat "$__global/explorer/os")"
-   case "$os" in
-         amazon|centos|fedora|redhat) type="yum" ;;
-         archlinux) type="pacman" ;;
-         debian|ubuntu|linaro) type="apt" ;;
-         freebsd) type="pkg_freebsd" ;;
-         gentoo) type="emerge" ;;
-         suse) type="zypper" ;;
-         openwrt) type="opkg" ;;
-         *)
-            echo "Don't know how to manage packages on: $os" >&2
-            exit 1
-         ;;
+  # By default determine package manager based on operating system
+  os="$(cat "$__global/explorer/os")"
+  case "$os" in
+    amazon|centos|fedora|redhat) type="yum" ;;
+    archlinux) type="pacman" ;;
+    debian|ubuntu|linaro) type="apt" ;;
+    freebsd) type="pkg_freebsd" ;;
+    gentoo) type="emerge" ;;
+    suse) type="zypper" ;;
+    openwrt) type="opkg" ;;
+    *)
+      echo "Don't know how to manage packages on: $os" >&2
+      exit 1
+    ;;
    esac
 fi
 
 state="$(cat "$__object/parameter/state")"
 
-set -- "$@" "$__object_id" "--state" "$state"
+__opts="$__object_id --state $state"
+
 cd "$__object/parameter"
-for property in $(ls .); do
-   [ "$property" = "ignoreerrors" ] && continue
-   if [ "$property" != "type" -a "$property" != "state" ]; then
-      set -- "$@" "--$property" "$(cat "$property")"
-   fi
+for property in $(ls .) ; do
+  case "${property}" in
+    type|state|ignoreerrors) continue ;;
+    unauthenticated)         opts="$__opts --unauthenticated"  ;;
+    *)                       opts="$__opts --$property $(cat "$property")"    ;;
+  esac
 done
 
+##printf "DEBUG: %s - setup with objectid=\"%s\", state=\"%s\"\n" "${__type##*/}" "$__object_id" "${state}"
+
+printf "DEBUG: %s - calling __package_%s %s\n" "${__type##*/}" "${type}" "`echo $__opts | tr [:space:] ' '`"
+
 if [ -f "$__object/parameter/ignoreerrors" ] ; then
-   __package_$type "$@" || echo "WARNING: __package_$type "$@" returned error code $?"
+   __package_$type $__opts || printf "WARNING: __package_%s \"%s\" returned error code %s\n" "${type}" "`echo $__opts | tr [:space:] ' '`"
 else
-   __package_$type "$@"
+   __package_$type $__opts
 fi
 
-
+##printf "DEBUG: %s - finished\n" "${__type##*/}"

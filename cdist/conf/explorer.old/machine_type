@@ -22,17 +22,6 @@
 
 # FIXME: other system types (not linux ...)
 
-if [ -d "/proc/vz" -a ! -d "/proc/bc" ]; then
-    echo openvz
-    exit
-fi
-
-if [ -e "/proc/1/environ" ] &&
-    cat "/proc/1/environ" | tr '\000' '\n' | grep -Eiq '^container='; then
-    echo lxc
-    exit
-fi
-
 if [ -r /proc/cpuinfo ]; then
     # this should only exist on virtual guest machines,
     # tested on vmware, xen, kvm
@@ -48,28 +37,13 @@ if [ -r /proc/cpuinfo ]; then
                 if grep -q -i 'vmware' /sys/class/dmi/id/product_name; then
                     echo "virtual_by_vmware"
                     exit
-                elif grep -q -i 'bochs' /sys/class/dmi/id/product_name; then
-                    echo "virtual_by_kvm"
-                    exit 
-                elif grep -q -i 'virtualbox' /sys/class/dmi/id/product_name; then
-                    echo "virtual_by_virtualbox"
-                    exit 
+                else 
+                    if grep -q -i 'bochs' /sys/class/dmi/id/product_name; then
+                        echo "virtual_by_kvm"
+                        exit 
+                    fi
                 fi
             fi
-
-            if [ -r /sys/class/dmi/id/sys_vendor ]; then
-                if grep -q -i 'qemu' /sys/class/dmi/id/sys_vendor; then
-                    echo "virtual_by_kvm"
-                    exit
-                fi
-            fi
-
-            if [ -r /sys/class/dmi/id/chassis_vendor ]; then
-                if grep -q -i 'qemu' /sys/class/dmi/id/chassis_vendor; then
-                    echo "virtual_by_kvm"
-                    exit
-                fi
-            fi                        
         fi
         echo "virtual_by_unknown"
     else

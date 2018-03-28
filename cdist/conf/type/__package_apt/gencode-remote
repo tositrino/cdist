@@ -21,10 +21,22 @@
 # Manage packages on Debian and co.
 #
 
+instopt="--allow-downgrades --allow-remove-essential --allow-change-held-packages"
+remopt=""
+
 if [ -f "$__object/parameter/name" ]; then
-   name="$(cat "$__object/parameter/name")"
+  name="$(cat "$__object/parameter/name")"
 else
-   name="$__object_id"
+  name="$__object_id"
+fi
+
+if [ -f "$__object/parameter/unauthenticated" ]; then
+  instopt="${instopt} --allow-unauthenticated"
+fi
+
+if [ -z "${name}" ] ; then
+  echo "WARNING: no package name defined , ignoring (args=\"$@\")"
+  exit 0
 fi
 
 if [ -f "$__object/parameter/state" ]; then
@@ -44,19 +56,23 @@ esac
 
 # Hint if we need to avoid questions at some point:
 # DEBIAN_PRIORITY=critical can reduce the number of questions
-aptget="DEBIAN_FRONTEND=noninteractive apt-get --quiet --yes --no-install-recommends -o DPkg::Options::=\"--force-confold\""
+aptget="DEBIAN_FRONTEND=noninteractive apt-get --quiet --yes --no-install-recommends \
+        -o DPkg::Options::=\"--force-confold\" \
+        -o DPkg::Options::=\"--force-depends\""
 
 [ "$state_is" = "$state_should" ] && exit 0
 
 case "$state_should" in
-    present)
-        echo $aptget install --force-yes \"$name\"
-    ;;
-    absent)
-        echo $aptget remove \"$name\"
-    ;;
-    *)
-        echo "Unknown state: $state_should" >&2
-        exit 1
-    ;;
+  present)
+    printf "%s install %s \"%s\"\n" "${aptget}" "${instopt}" "${name}" 2>&1 || printf "ERROR:%s install %s \"%s\" failed\n" "${aptget}" "${instopt}" "${name}"
+    ## echo $aptget install --allow-downgrades --allow-remove-essential --allow-change-held-packages \"$name\" 2>&1 || echo "ERROR
+  ;;
+  absent)
+    printf "%s remove %s \"%s\"\n" "${aptget}" "${remopt}" "${name}" 2>&1 || printf "ERROR:%s remove %s \"%s\" failed\n" "${aptget}" "${remopt}" "${name}"
+    ##echo $aptget remove ${remopt} \"$name\"
+  ;;
+  *)
+    echo "Unknown state: $state_should" >&2
+    exit 1
+  ;;
 esac

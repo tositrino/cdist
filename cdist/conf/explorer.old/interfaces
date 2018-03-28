@@ -1,7 +1,6 @@
 #!/bin/sh
 #
-# 2014 Daniel Heule  (hda at sfs.biz)
-# 2014 Thomas Oettli (otho at sfs.biz)
+# 2012 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 #
 # This file is part of cdist.
 #
@@ -19,18 +18,34 @@
 # along with cdist. If not, see <http://www.gnu.org/licenses/>.
 #
 #
+# List all network interfaces in explorer/ifaces. One interface per line.
+#
+# If your OS is not supported please provide a ifconfig output
+#
 
-# FIXME: other system types (not linux ...)
+# Use ip, if available
+if command -v ip; then
+    ip -o link show | sed -n 's/^[0-9]\+: \(.\+\): <.*/\1/p'
+    exit 0
+fi
 
-os=$("$__explorer/os")
-case "$os" in
-    "macosx")
-        echo "$(sysctl -n hw.memsize)/1024" | bc
-    ;;
+if ! command -v ifconfig; then
+   # no ifconfig, nothing we could do
+   exit 0
+fi
 
+uname_s="$(uname -s)"
+REGEXP='s/^(.*)(:[[:space:]]*flags=|Link encap).*/\1/p'
+
+case "$uname_s" in
+    Darwin)
+	ifconfig -a | sed -n -E "$REGEXP"
+	;;
+    Linux|*BSD)
+	ifconfig -a | sed -n -r "$REGEXP"
+	;;
     *)
-    if [ -r /proc/meminfo ]; then
-        grep "MemTotal:" /proc/meminfo | awk '{print $2}'
-    fi
-    ;;
+	echo "Unsupported ifconfig output for $uname_s" >&2
+	exit 1
+	;;
 esac

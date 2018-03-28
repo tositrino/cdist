@@ -1,7 +1,6 @@
 #!/bin/sh
 #
-# 2014 Daniel Heule  (hda at sfs.biz)
-# 2014 Thomas Oettli (otho at sfs.biz)
+# 2010-2011 Andi Brönnimann (andi-cdist at v-net.ch)
 #
 # This file is part of cdist.
 #
@@ -19,18 +18,10 @@
 # along with cdist. If not, see <http://www.gnu.org/licenses/>.
 #
 #
+# All os variables are lower case
+#
+#
 
-# FIXME: other system types (not linux ...)
-
-os=$("$__explorer/os")
-case "$os" in
-    "macosx")
-        echo "$(sysctl -n hw.memsize)/1024" | bc
-    ;;
-
-    *)
-    if [ -r /proc/meminfo ]; then
-        grep "MemTotal:" /proc/meminfo | awk '{print $2}'
-    fi
-    ;;
-esac
+if command -v uname 2>&1 >/dev/null; then
+   uname -m
+fi

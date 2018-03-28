@@ -22,15 +22,10 @@
 
 # FIXME: other system types (not linux ...)
 
-os=$("$__explorer/os")
-case "$os" in
-    "macosx")
-        echo "$(sysctl -n hw.memsize)/1024" | bc
-    ;;
-
-    *)
-    if [ -r /proc/meminfo ]; then
-        grep "MemTotal:" /proc/meminfo | awk '{print $2}'
+if [ -r /proc/cpuinfo ]; then
+    sockets="$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+    if [ ${sockets} -eq 0 ]; then
+        sockets="$(cat /proc/cpuinfo | grep "processor" | wc -l)"
     fi
-    ;;
-esac
+    echo "${sockets}"
+fi

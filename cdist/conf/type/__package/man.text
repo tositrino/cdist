@@ -1,6 +1,6 @@
 cdist-type__package(7)
 ======================
-Steven Armstrong <steven-cdist--@--armstrong.cc>
+THS <ths--@--hanskult.de>
 
 
 NAME
@@ -17,27 +17,28 @@ It dispatches the actual work to the package system dependant types.
 BOOLEAN PARAMETERS
 ------------------
 ignoreerrors::
-    do not exit on package installtion errors - may be handy in case of
-    packages that generate errors in chrooted or unusual environemnts
-    yeah, i mean you, grub-probe
-
+  do not exit on package installtion errors - may be handy in case of
+  packages that generate errors in chrooted or unusual environemnts
+  yeah, i mean you, grub-probe
+unauthenticated::
+  allow unauthenticated packages to be installed
 
 OPTIONAL PARAMETERS
 -------------------
 name::
-    The name of the package to install. Default is to use the object_id as the
-    package name.
+  The name of the package to install. Default is to use the object_id as the
+  package name.
 version::
-    The version of the package to install. Default is to install the version
-    choosen by the local package manager.
+  The version of the package to install. Default is to install the version
+  choosen by the local package manager.
 type::
-    The package type to use. Default is determined based on the $os explorer
-    variable.
-    e.g. __package_apt for Debian
-         __package_emerge for Gentoo
+  The package type to use. Default is determined based on the $os explorer
+  variable.
+  e.g. __package_apt for Debian
+       __package_emerge for Gentoo
 
 state::
-    Either "present" or "absent", defaults to "present"
+  Either "present" or "absent", defaults to "present"
 
 
 REQUIRED PARAMETERS
@@ -69,3 +70,6 @@ COPYING
 -------
 Copyright \(C) 2011 Steven Armstrong. Free use of this software is
 granted under the terms of the GNU General Public License version 3 (GPLv3).
+Copyright \(C) 2012-2018 THS. Free use of this software is
+granted under the terms of the GNU General Public License version 3 (GPLv3).
+

@@ -27,6 +27,14 @@ name::
 state::
     Either "present" or "absent", defaults to "present"
 
+BOOLEAN PARAMETERS
+-------------------
+ignoreerrors::
+  do not exit on package installtion errors - may be handy in case of
+  packages that generate errors in chrooted or unusual environemnts
+  yeah, i mean you, grub-probe
+unauthenticated::
+  allow unauthenticated packages to be installed
 
 EXAMPLES
 --------

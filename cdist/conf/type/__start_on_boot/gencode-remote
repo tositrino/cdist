@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/sh -e
 #
 # 2012-2013 Nico Schottelius (nico-cdist at schottelius.org)
-# 2013 Daniel Heule (hda at sfs.biz)
+# 2016 Daniel Heule (hda at sfs.biz)
 #
 # This file is part of cdist.
 #
@@ -22,79 +22,99 @@
 
 state_should="$(cat "$__object/parameter/state")"
 state_is=$(cat "$__object/explorer/state")
+init=$(cat "$__global/explorer/init")
 target_runlevel="$(cat "$__object/parameter/target_runlevel")"
 
 # Short circuit if nothing is to be done
 [ "$state_should" = "$state_is" ] && exit 0
 
 os=$(cat "$__global/explorer/os")
+os_version=$(cat "$__global/explorer/os_version")
 name="$__object_id"
 
 case "$state_should" in
     present)
-        case "$os" in
-            archlinux)
-                echo "systemctl enable \"$name\""
-            ;;
-            debian)
-                echo update-rc.d -f \"$name\" enable
-            ;;
-            linaro|ubuntu)
-                echo "update-rc.d \"$name\" defaults >/dev/null"
-                echo "rm -f /etc/init/$name.override"
-            ;;
-            gentoo)
-                echo rc-update add \"$name\" \"$target_runlevel\"
-            ;;
+        if [ "$init" = 'systemd' ]; then
+            # this handles ALL linux distros with systemd
+            # e.g. archlinux, gentoo in some cases, new RHEL and SLES versions
+            echo "systemctl -q enable \"$name\""
+        else
+            case "$os" in
+                debian)
+                    case "$os_version" in
+                        [1-7]*)
+                            echo "update-rc.d \"$name\" defaults >/dev/null"
+                        ;;
+                        8*)
+                            echo "systemctl enable \"$name\""
+                        ;;
+                        *)
+                            echo "Unsupported version $os_version of $os" >&2
+                            exit 1
+                        ;;
+                    esac
+                ;;
+                devuan)
+                    echo "update-rc.d \"$name\" defaults >/dev/null"
+                ;;
 
-            amazon|centos|fedora|owl|redhat|suse)
-                echo chkconfig \"$name\" on
-            ;;
+                gentoo)
+                    echo rc-update add \"$name\" \"$target_runlevel\"
+                ;;
 
-            openwrt)
-                # 'enable' can be successful and still return a non-zero exit
-                # code, deal with it by checking for success ourselves in that
-                # case (the || ... part).
-                echo "/etc/init.d/\"$name\" enable || [ -f /etc/rc.d/S??\"$name\" ]"
-            ;;
+                amazon|scientific|centos|fedora|owl|redhat|suse)
+                    echo chkconfig \"$name\" on
+                ;;
 
-            *)
-               echo "Unsupported os: $os" >&2
-               exit 1
-            ;;
-        esac
+                openwrt)
+                    # 'enable' can be successful and still return a non-zero exit
+                    # code, deal with it by checking for success ourselves in that
+                    # case (the || ... part).
+                    echo "/etc/init.d/\"$name\" enable || [ -f /etc/rc.d/S??\"$name\" ]"
+                ;;
+
+                ubuntu)
+                    echo "update-rc.d \"$name\" defaults >/dev/null"
+                ;;
+
+                *)
+                   echo "Unsupported os: $os" >&2
+                   exit 1
+                ;;
+            esac
+        fi
     ;;
 
     absent)
-        case "$os" in
-            archlinux)
-                echo "systemctl disable \"$name\""
-            ;;
-            debian)
-                echo update-rc.d -f \"$name\" remove
-            ;;
-            linaro|ubuntu)
-                echo update-rc.d -f \"$name\" remove
-                echo "echo manual > /etc/init/$name.override"
-            ;;
-            gentoo)
-                echo rc-update del \"$name\"  \"$target_runlevel\"
-            ;;
+        if [ "$init" = 'systemd' ]; then
+            # this handles ALL linux distros with systemd
+            # e.g. archlinux, gentoo in some cases, new RHEL and SLES versions
+            echo "systemctl -q disable \"$name\""
 
-            centos|fedora|owl|redhat|suse)
-                echo chkconfig \"$name\" off
-            ;;
+        else
+            case "$os" in
+                debian|ubuntu|devuan)
+                    echo update-rc.d -f \"$name\" remove
+                ;;
 
-            openwrt)
-                echo "\"/etc/init.d/$name\" disable"
-            ;;
+                gentoo)
+                    echo rc-update del \"$name\"  \"$target_runlevel\"
+                ;;
 
-            *)
-               echo "Unsupported os: $os" >&2
-               exit 1
-            ;;
-        esac
- 
+                centos|fedora|owl|redhat|suse)
+                    echo chkconfig \"$name\" off
+                ;;
+
+                openwrt)
+                    echo "\"/etc/init.d/$name\" disable"
+                ;;
+
+                *)
+                   echo "Unsupported os: $os" >&2
+                   exit 1
+                ;;
+            esac
+        fi
     ;;
 
     *)
