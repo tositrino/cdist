@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # 2011 Steven Armstrong (steven-cdist at armstrong.cc)
+# 2018 THS (th at hanskult dot de)
 #
 # This file is part of cdist.
 #
@@ -21,6 +22,6 @@
 # run 'apt-get update' if anything in /etc/apt is newer then /var/lib/apt/lists
 cat << DONE
 if find /etc/apt -mindepth 1 -cnewer /var/lib/apt/lists | grep . > /dev/null; then
-   apt-get update || apt-get update
+   apt-get update || apt-get update || echo "WARNING: __apt_update_index apt-get update failed"
 fi
 DONE

@@ -49,25 +49,25 @@ fi
 
 state="$(cat "$__object/parameter/state")"
 
-__opts="$__object_id --state $state"
+l_opts="$__object_id --state $state"
 
 cd "$__object/parameter"
 for property in $(ls .) ; do
   case "${property}" in
     type|state|ignoreerrors) continue ;;
-    unauthenticated)         opts="$__opts --unauthenticated"  ;;
-    *)                       opts="$__opts --$property $(cat "$property")"    ;;
+    unauthenticated)         l_opts="$l_opts --unauthenticated"  ;;
+    *)                       l_opts="$l_opts --$property $(cat "$property")"    ;;
   esac
 done
 
 ##printf "DEBUG: %s - setup with objectid=\"%s\", state=\"%s\"\n" "${__type##*/}" "$__object_id" "${state}"
 
-printf "DEBUG: %s - calling __package_%s %s\n" "${__type##*/}" "${type}" "`echo $__opts | tr [:space:] ' '`"
+printf "DEBUG: %s - calling __package_%s %s\n" "${__type##*/}" "${type}" "`echo $l_opts | tr [:space:] ' '`"
 
 if [ -f "$__object/parameter/ignoreerrors" ] ; then
-   __package_$type $__opts || printf "WARNING: __package_%s \"%s\" returned error code %s\n" "${type}" "`echo $__opts | tr [:space:] ' '`"
+   __package_$type $l_opts || printf "WARNING: __package_%s \"%s\" returned error code %s\n" "${type}" "`echo $l_opts | tr [:space:] ' '`"
 else
-   __package_$type $__opts
+   __package_$type $l_opts
 fi
 
 ##printf "DEBUG: %s - finished\n" "${__type##*/}"
